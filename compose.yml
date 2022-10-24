@@ -3,18 +3,30 @@ version: "3.9"
 services:
 
   client:
-    build: ./client
+    build:
+      context: ./client
+      target: local
     environment:
       KAFKAJS_NO_PARTITIONER_WARNING: 1
       KAFKA_BROKERS: kafka:9092
       KAFKA_CLIENT_ID: my-client
     volumes:
+      # we only support mounting the src
       - ./client/src:/app/src
     ports:
       - 80:3000
-    entrypoint: ["npm", "run", "dev"]
     depends_on:
       - kafka
+
+  storybook:
+    build:
+      context: ./client
+      target: storybook
+    volumes:
+      - ./client/src:/app/src
+      - ./client/.storybook:/app/.storybook
+    ports:
+      - 6006:3000
 
   zookeeper:
     image: 'bitnami/zookeeper:latest'

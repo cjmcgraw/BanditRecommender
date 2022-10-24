@@ -5,19 +5,23 @@ export interface RecommenderResponse<T extends IRecommendation> {
 
 export interface IRecommendation {
   id: string;
-  source: string;
+  recommender: string;
   listRank?: number;
   globalRank?: number;
 }
 
-// HOC response
-export interface Content extends IRecommendation {
-  creatorId: number;
-  onImpression?: () => void;
-  onViewed?: () => void;
-  onCTA?: () => void;
+export interface Content {
+  id: string,
+  source: string,
+  creatorId: string
 }
 
+// HOC response
+export interface RecommendedContent extends IRecommendation, Content {
+  onImpression: () => void;
+  onViewed: () => void;
+  onCTA: () => void;
+}
 export interface IRecommenderConfig {
   source: string;
   params: number[];

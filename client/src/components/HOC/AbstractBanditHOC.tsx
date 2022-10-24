@@ -1,9 +1,9 @@
-import type { ISmartList, IRecommenderConfig, RecommenderResponse, IRecommendation } from '../types';
-import { BetaBanditList } from '../BanditLists';
+import type { ISmartList, IRecommenderConfig, RecommenderResponse, IRecommendation } from '../../types';
+import { BetaBanditList } from '../../BanditLists';
 import React from 'react';
 import axios from 'axios';
-import { buildConsoleLogFn } from '../utils';
-import { RecommenderWeights } from '../pages/api/recommender/weights';
+import { buildConsoleLogFn } from '../../utils';
+import { RecommenderWeights } from '../../pages/api/recommender/weights';
 
 const log = buildConsoleLogFn("AbstractBanditHOC");
 

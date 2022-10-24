@@ -1,33 +1,66 @@
+import type { RecommendedContent } from '../../types';
+import type { DataGridPropsWithoutDefaultValue } from '@mui/x-data-grid/models/props/DataGridProps';
+import type { GridColDef, DataGridProps } from '@mui/x-data-grid';
+
 import { Box, Container } from '@mui/material'
-import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
-import { Content } from '../../types';
-import { buildConsoleLogFn } from '../../utils';
+import { DataGrid } from '@mui/x-data-grid';
+import React from 'react';
 
-const log = buildConsoleLogFn("CurrentContentView");
-
-export interface SendEventProps {
-  content: Content[]
+export interface CurrentContentViewProps extends Omit<DataGridProps, 'column' | 'row'> {
+  content: RecommendedContent[],
 }
 
-export default function SendEventComponents(props: SendEventProps) {
-  const content = props.content;
-  const columns: GridColDef[] = [
-    {field: "id"},
-    {field: "globalRank"},
-    {field: "source"},
-    {field: "listRank"},
+const pixelWidth = 10;
+
+export const CurrentContentView: React.FC<CurrentContentViewProps> = (props)  => {
+  const {content, ...dataGridOverrides} = props;
+
+  function getColumn(field: string, options?: {noDynamicLength?: boolean, limit?: number}): GridColDef {
+    const getLength = (record: RecommendedContent) => {
+      type FieldKey = keyof typeof record;
+      const column = record[field as FieldKey];
+      return (column) ? (column.toString().length + 2) * pixelWidth: 100.0;
+    };
+
+    let width = 0;
+    if (!options?.noDynamicLength) { 
+      width = Math.min(Math.max(...content.map(getLength)), options?.limit || 100_000);
+    }
+    return { field, width: Math.max(width, 100.0)}
+
+  }
+
+  const columns = [
+    getColumn("id"),
+    getColumn("creatorId"),
+    getColumn("source", {limit: 256}),
+    getColumn("recommender"),
+    getColumn("listRank"),
+    getColumn("globalRank"),
   ];
 
+  const [pageSize, setPageSize] = React.useState<number>(10);
+  const dataGridProps: DataGridProps = {
+    autoHeight: true,
+    pageSize: pageSize,
+    onPageSizeChange: (s:number, ..._rest: any) => setPageSize(s),
+    rowsPerPageOptions: [5, 10, 25, 50, 100],
+    ...dataGridOverrides,
+    columns: columns,
+    rows: content,
+  }
+
+
   return (
-   <div>
-      <Container>
-        <Box>
-          <DataGrid
-            columns={columns}
-            rows={content}
-          />
-        </Box>
-      </Container>
-   </div>
+    <Container>
+      <Box sx={{ 
+        minHeight: "100%", 
+        minWidth: '25%',
+        boxShadow: 1,
+        flexDirection: "column"
+      }} >
+        <DataGrid {...dataGridProps} />
+      </Box>
+    </Container>
   )
 }
